@@ -1,0 +1,7 @@
+--- About ----
+
+nim-thesaurus is a Nim wrapper around the Big Huge Thesarus API at http://words.bighugelabs.com/api.php.
+
+---- License ----
+
+nim-thesarus is released under the MIT open source license.
