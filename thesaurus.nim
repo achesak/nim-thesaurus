@@ -8,37 +8,33 @@ import httpclient
 import strutils
 
 type
-    BHWordList* = ref BHWordListInternal
-    
-    BHWordListInternal* = object
+    BHWordList* = ref object
         synonyms : seq[string]
         antonyms : seq[string]
         related : seq[string]
         similar : seq[string]
         userSuggestions : seq[string]
-    
-    BHThesaurus* = ref BHThesaurusInternal
-    
-    BHThesaurusInternal* = object
+
+    BHThesaurus* = ref object
         noun : BHWordList
         verb : BHWordList
 
 
-proc getThesarusEntry*(apikey : string, word : string): BHThesaurus = 
+proc getThesarusEntry*(apikey : string, word : string): BHThesaurus =
     ## Gets the thesarus entry for the given ``word``.
-    
-    var response : string = getContent("http://words.bighugelabs.com/api/2/" & apikey & "/" & word & "/")
+
+    var response : string = newHttpClient().getContent("http://words.bighugelabs.com/api/2/" & apikey & "/" & word & "/")
     var noun : BHWordList = BHWordList(synonyms: @[], antonyms: @[], related: @[], similar: @[], userSuggestions: @[])
     var verb : BHWordList = BHWordList(synonyms: @[], antonyms: @[], related: @[], similar: @[], userSuggestions: @[])
     var entry : BHThesaurus = BHThesaurus(noun: noun, verb: verb)
-    
+
     var lines : seq[string] = response.splitLines()
     for i in lines:
-        
+
         var field : string = i.strip(leading = true, trailing = true)
         if field == "":
             continue
-        
+
         var fieldItems : seq[string] = field.split("|")
         if fieldItems[0] == "noun":
             if fieldItems[1] == "syn":
@@ -62,5 +58,5 @@ proc getThesarusEntry*(apikey : string, word : string): BHThesaurus =
                 verb.similar.add(fieldItems[2])
             elif fieldItems[1] == "usr":
                 verb.userSuggestions.add(fieldItems[2])
-    
+
     return entry
